@@ -6,8 +6,66 @@ import {
     Typography,
     Button,
 } from "@material-tailwind/react";
+import { useState } from "react";
+import axios from "axios"
 
 export default function ProductCard() {
+    const [amount, setAmount]=useState(350)
+
+    const handlePayment=async ()=>{
+        try {
+            await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/payment/order`,
+                    {
+                        amount: amount
+                    },
+                {
+                    headers:{
+                        "Content-Type":"application/json"
+                    }
+                }
+            )
+            .then((data)=>{
+                handlePaymentVerify(data.data)
+                console.log(data.data)
+            })
+        }catch (error) {
+            console.log(`ERROR: ${error}`)
+        }
+    }
+    const handlePaymentVerify = async (data) => {
+        const options = {
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+            amount: data.amount,
+            currency: data.currency,
+            order_id: data.id,
+            handler: async (response) => {
+                console.log("response", response)
+                try {
+                    const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/payment/verify`, {
+                        method: 'POST',
+                        headers: {
+                            'content-type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                        })
+                    })
+
+                    const verifyData = await res.json();
+                } catch (error) {
+                    console.log(`There is an error: ${error}`);
+                }
+            },
+            theme: {
+                color: "#5f63b8"
+            }
+        };
+        const rzp1 = new window.Razorpay(options);
+        rzp1.open();
+    }
+
     return (
         <Card className="mt-6 w-96 bg-[#222f3e] text-white">
             {/* CardHeader */}
@@ -35,7 +93,7 @@ export default function ProductCard() {
             {/* CardFooter  */}
             <CardFooter className="pt-0">
                 {/* Buy Now Button  */}
-                <Button className="w-full bg-[#1B9CFC]">Buy Now</Button>
+                <Button onClick={handlePayment} className="w-full bg-[#1B9CFC]">Buy Now</Button>
             </CardFooter>
         </Card>
     );
