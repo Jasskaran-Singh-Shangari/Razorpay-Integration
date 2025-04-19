@@ -1,11 +1,25 @@
 import express from "express"
+import cors from "cors"
+export const app=express();
 
-const app=express()
+//  MIDDLEWARES
 
-app.get("/", (req, res)=>{
-    res.send("The app has started")
-})
+app.use(express.json())
+app.use(cors())
 
-app.listen(process.env.PORT, ()=>{
-    console.log(`The app is listening at port ${process.env.PORT}`)
+// INITAILIZING ROUTES
+
+import paymentRouter from "./routes/payment.route.js"
+
+app.use("/api/payment", paymentRouter)
+
+
+// GLOBAL ERROR HANDLER
+
+app.use((error, req, res, next)=>{
+    res.json({
+        message: error.message || "Something went wrong",
+        status: error.status,
+        stack: error.stack
+    })
 })

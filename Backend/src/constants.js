@@ -1,1 +1,1 @@
-export const DB_NAME=paymentDB
+export const DB_NAME="paymentDB"
