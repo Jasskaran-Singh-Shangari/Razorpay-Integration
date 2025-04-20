@@ -14,7 +14,26 @@ export const orderAPI=(req, res)=>{
         const options={
             amount: Number(amount * 100),
             receipt: crypto.randomBytes(10).toString("hex"),
-            currency: "INR"
+            currency: "INR",
+            // transfers:[
+            //     {
+            //         account:,
+            //         amount:Number(amount*100*0.98),
+            //         currency: "INR",
+            //         notes:{
+            //             name: "Vendor Share"
+            //         }
+
+            //     },
+            //     {
+            //         account:,
+            //         amount: Number(amount*100*0.02),
+            //         currency:"INR",
+            //         notes: {
+            //             name:"Platform Commission"
+            //         }
+            //     }
+            // ]
         }
 
         instance.orders.create(options, (error, order)=>{
